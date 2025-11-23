@@ -1,0 +1,6 @@
+﻿services:
+  orderservice:
+    image: orderservice
+    build:
+      context: .
+      dockerfile: OrderService/Dockerfile
