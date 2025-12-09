@@ -5,7 +5,7 @@ using OrderService.Application.Orders.DTOs;
 using OrderService.Domain.Entities;
 using OrderService.Domain.Enums;
 
-namespace OrderService.Application.Orders;
+namespace OrderService.Application.Services;
 
 public class OrdersService : IOrderService
 {
@@ -18,7 +18,7 @@ public class OrdersService : IOrderService
         _mapper = mapper;
     }
     
-    public async Task<Result<None>> UpdateOrderStatus(Guid orderId, OrderStatus orderStatus)
+    public async Task<Result<None>> UpdateOrderStatus(Guid orderId, OrderStatus orderStatus, string comment = "")
     {
         try
         {
@@ -29,6 +29,7 @@ public class OrdersService : IOrderService
             }
 
             order.Status = orderStatus;
+            order.Comment = comment;
             await _orderDbContext.SaveChangesAsync();
             return await Result<None>.SuccessAsync();
         }

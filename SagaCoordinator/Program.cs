@@ -10,8 +10,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddRebus(
     configure => configure
         .Transport(t => 
-            t.UseRabbitMq(builder.Configuration["Rabbit:ConnectionString"], "order_queue"))
-        .Routing(r => r.TypeBased().Map<ReserveItemsCommand>("inventory_queue"))
+            t.UseRabbitMq(builder.Configuration["Rabbit:ConnectionString"], "saga_queue"))
+        .Routing(r => r.TypeBased()
+            .Map<ReserveItemsCommand>("inventory_queue")
+            .Map<CancelOrderCommand>("order_queue")
+            .Map<OrderSucceededCommand>("order_queue"))
         .Sagas(s => s.StoreInPostgres(
             builder.Configuration.GetConnectionString("RebusSql"),
             dataTableName: "RebusSagaData",

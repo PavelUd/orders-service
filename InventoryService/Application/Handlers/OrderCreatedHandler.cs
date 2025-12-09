@@ -23,7 +23,12 @@ public class OrderCreatedHandler : IHandleMessages<ReserveItemsCommand>
         if (result.Succeeded)
         {
             var evt = new ItemsReservedEvent(message.OrderId, result.Data);
-            await _bus.Reply(evt);
+            await _bus.Send(evt);
+        }
+        else
+        {
+            var evt = new ItemsReservationFailedEvent(message.OrderId, string.Join(",", result.Errors));
+            await _bus.Send(evt);
         }
     }
 }

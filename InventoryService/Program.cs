@@ -30,8 +30,9 @@ builder.Services.AddRebus(configure => configure
         o.SetNumberOfWorkers(1);
         o.SetMaxParallelism(1);
     })
-    .Routing(r => r.TypeBased().Map<ItemsReservedEvent>("order_queue")));
-builder.Services.AddScoped<OrderCreatedHandler>();
+    .Routing(r => r.TypeBased()
+        .Map<ItemsReservedEvent>("saga_queue")
+        .Map<ItemsReservationFailedEvent>("saga_queue")));
 builder.Services.AutoRegisterHandlersFromAssemblyOf<OrderCreatedHandler>();
 var app = builder.Build();
 

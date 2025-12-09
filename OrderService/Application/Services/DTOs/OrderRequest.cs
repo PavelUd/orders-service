@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using AutoMapper;
 using AutoMapper.Configuration.Annotations;
 using OrderService.Domain.Entities;
@@ -6,7 +7,7 @@ namespace OrderService.Application.Orders.DTOs;
 
 public class OrderRequest
 {
-    [Ignore]
+    [JsonIgnore]
     public Guid OrderId { get; set; }
     public Guid AccountId { get; set; }
     public List<OrderItem> Items { get; set; } = new();

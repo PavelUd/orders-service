@@ -8,7 +8,8 @@ namespace SagaCoordinator;
 
 public class OrderSaga : Saga<OrderSagaData>,
     IAmInitiatedBy<OrderCreatedEvent>,
-    IHandleMessages<ItemsReservedEvent>
+    IHandleMessages<ItemsReservedEvent>,
+    IHandleMessages<ItemsReservationFailedEvent>
 {
     private readonly IBus _bus;
 
@@ -20,21 +21,28 @@ public class OrderSaga : Saga<OrderSagaData>,
     public async Task Handle(OrderCreatedEvent message)
     {
         Data.OrderId = message.OrderId;
-
+        
         await _bus.Send(new ReserveItemsCommand(message.OrderId, message.Items));
     }
 
-    public Task Handle(ItemsReservedEvent message)
+    public async Task Handle(ItemsReservedEvent message)
     {
         Data.TotalPrice = message.TotalPrice;
-        MarkAsComplete();
-
-        return Task.CompletedTask;
+        
+        await _bus.Send(new OrderSucceededCommand(message.OrderId));
     }
+
+    public async Task Handle(ItemsReservationFailedEvent message)
+    {
+        await _bus.Send(new CancelOrderCommand(message.OrderId, message.Reason));
+    }
+    
+    
 
     protected override void CorrelateMessages(ICorrelationConfig<OrderSagaData> config)
     {
         config.Correlate<OrderCreatedEvent>(msg => msg.OrderId, data => data.OrderId);
         config.Correlate<ItemsReservedEvent>(msg => msg.OrderId, data => data.OrderId);
+        config.Correlate<ItemsReservationFailedEvent>(msg => msg.OrderId, data => data.OrderId);
     }
 } 

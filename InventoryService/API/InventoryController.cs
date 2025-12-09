@@ -14,12 +14,10 @@ namespace InventoryService.API;
 public class InventoryController : Controller
 {
     private readonly IInventoryService _inventoryService;
-    public readonly OrderCreatedHandler handler; 
 
-    public InventoryController(IInventoryService inventoryService, OrderCreatedHandler handler)
+    public InventoryController(IInventoryService inventoryService)
     {
         _inventoryService = inventoryService;
-        this.handler = handler;
     }
 
     [HttpGet]
@@ -41,12 +39,5 @@ public class InventoryController : Controller
     {
         var result = await _inventoryService.UpdateProductQuantity(request, productId);
         return result.Succeeded ? NoContent()  : StatusCode(422,result);
-    }
-
-    [HttpPost("reserve")]
-    public async Task<IActionResult> ReserveStock()
-    {
-       await handler.Handle(new ReserveItemsCommand(Guid.NewGuid(), new List<OrderItemDto>()));
-       return Ok();
     }
 }

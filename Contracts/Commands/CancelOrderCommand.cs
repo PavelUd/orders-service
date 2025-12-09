@@ -1,3 +1,3 @@
 namespace Contracts.Commands;
 
-public record CancelOrderCommand();
+public record CancelOrderCommand(Guid OrderId, string Reason);

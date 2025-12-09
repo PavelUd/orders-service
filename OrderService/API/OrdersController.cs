@@ -10,17 +10,25 @@ namespace OrderService.API;
 public class OrdersController : Controller
 {
     private IOrdersPublisher _ordersPublisher;
+    private readonly IOrderService _orderService;
 
-    public OrdersController(IOrdersPublisher ordersPublisher)
+    public OrdersController(IOrdersPublisher ordersPublisher, IOrderService orderService)
     {
         _ordersPublisher = ordersPublisher;
+        _orderService = orderService;
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] OrderRequest request, CancellationToken cancellationToken)
     {
-        await _ordersPublisher.PublishOrderCreatedAsync(request, cancellationToken);
-        return Accepted($"/order/{request.OrderId}", new { request.OrderId });
+       var idResult = await _orderService.CreateOrder(request);
+       if (!idResult.Succeeded)
+       {
+           return BadRequest(idResult.Errors);
+       }
+       request.OrderId = idResult.Data;
+       await _ordersPublisher.PublishOrderCreatedAsync(request, cancellationToken);
+       return Accepted($"/order/{idResult.Data}", new { idResult.Data });
     }
 }
     
