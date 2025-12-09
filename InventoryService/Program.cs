@@ -1,10 +1,12 @@
 using System.Reflection;
+using Contracts.Events;
 using FluentValidation;
-using InventoryService.Application;
+using InventoryService.Application.Handlers;
 using InventoryService.Application.Interfaces;
-using InventoryService.Application.Validators;
 using InventoryService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Rebus.Config;
+using Rebus.Routing.TypeBased;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +22,17 @@ builder.Services.AddScoped<IInventoryDbContext, InventoryDbContext>();
 builder.Services.AddScoped<IInventoryService, InventoryService.Application.InventoryService>();
 
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-
+builder.Services.AddRebus(configure => configure
+    .Transport(t => t.UseRabbitMq(builder.Configuration["Rabbit:ConnectionString"], "inventory_queue"))
+    .Options(o =>
+    {
+        o.LogPipeline();
+        o.SetNumberOfWorkers(1);
+        o.SetMaxParallelism(1);
+    })
+    .Routing(r => r.TypeBased().Map<ItemsReservedEvent>("order_queue")));
+builder.Services.AddScoped<OrderCreatedHandler>();
+builder.Services.AutoRegisterHandlersFromAssemblyOf<OrderCreatedHandler>();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -30,5 +42,7 @@ if (app.Environment.IsDevelopment())
 }
 app.MapControllers();
 app.UseRouting();
+
 app.UseHttpsRedirection();
 app.Run();
+

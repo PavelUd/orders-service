@@ -23,7 +23,7 @@ public class OrdersPublisher : IOrdersPublisher
                 .Select(i => new OrderItemDto(i.ProductId, i.Quantity))
                 .ToList() 
         );
-        await _bus.Publish(orderCreated);
+        await _bus.Send(orderCreated);
         
     }
 }

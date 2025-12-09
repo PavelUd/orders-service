@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts", "Contracts\Cont
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService", "InventoryService\InventoryService.csproj", "{F3A3A0B4-E286-4173-8201-08B907A72EFB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaCoordinator", "SagaCoordinator\SagaCoordinator.csproj", "{3C6FA98A-A41C-4507-A288-D366557E8861}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{F3A3A0B4-E286-4173-8201-08B907A72EFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3A3A0B4-E286-4173-8201-08B907A72EFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3A3A0B4-E286-4173-8201-08B907A72EFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C6FA98A-A41C-4507-A288-D366557E8861}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C6FA98A-A41C-4507-A288-D366557E8861}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C6FA98A-A41C-4507-A288-D366557E8861}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C6FA98A-A41C-4507-A288-D366557E8861}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

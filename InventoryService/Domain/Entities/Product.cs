@@ -9,6 +9,9 @@ public class Product : BaseEntity
     [Column("name")]
     public string Name { get; set; }
     
+    [Column("price")]
+    public long Price { get; set; }
+    
     [Column("quantity")]
     public int Quantity { get; set; }
 }

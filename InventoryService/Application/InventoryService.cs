@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Contracts.Events;
 using InventoryService.Application.Common;
 using InventoryService.Application.DTOs;
 using InventoryService.Application.Interfaces;
@@ -57,5 +58,43 @@ public class InventoryService : IInventoryService
         {
             return await Result<None>.FailureAsync(ex.Message);
         }
+    }
+
+    public async Task<Result<long>> ReserveItemsAsync(IReadOnlyList<OrderItemDto> itemDtos)
+    {
+        try
+        {
+            var totalPrice = 0;
+            foreach (var item in itemDtos)
+            {
+                var itemResult = await ReserveItemAsync(item);
+                if (!itemResult.Succeeded)
+                {
+                    return await Result<long>.FailureAsync("Ошибка");
+                }
+                totalPrice += item.Quantity;
+            }
+            await _inventoryDbContext.SaveChangesAsync();
+            return await Result<long>.SuccessAsync(totalPrice);
+        }
+        catch (Exception ex)
+        {
+            return await Result<long>.FailureAsync(ex.Message);
+        }
+    }
+    
+    private async Task<Result<long>> ReserveItemAsync(OrderItemDto request)
+    {
+        var product = _inventoryDbContext.Products.Find(request.ProductId);
+        if (product == null)
+        {
+            return await Result<long>.FailureAsync("Product not found");
+        }
+
+        if (product.Quantity >= request.Quantity)
+        {
+            product.Quantity -= request.Quantity;
+        }
+        return await Result<long>.SuccessAsync();
     }
 }
