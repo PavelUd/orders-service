@@ -13,16 +13,19 @@ public class InventoryService : IInventoryService
 {
     private readonly IInventoryDbContext _inventoryDbContext;
     private readonly IMapper _mapper;
-    
-    public InventoryService(IInventoryDbContext inventoryDbContext, IMapper mapper)
+    private readonly ILogger<InventoryService> _logger;
+
+    public InventoryService(IInventoryDbContext inventoryDbContext, IMapper mapper, ILogger<InventoryService> logger)
     {
         _inventoryDbContext = inventoryDbContext;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<Result<List<ProductDto>>> GetProductsAsync()
     {
         var products = await _inventoryDbContext.Products.ProjectTo<ProductDto>(_mapper.ConfigurationProvider).ToListAsync();
+        _logger.LogInformation($"Returning {products.Count} products");
         return await Result<List<ProductDto>>.SuccessAsync(products);
     }
 
@@ -33,10 +36,12 @@ public class InventoryService : IInventoryService
             var product = _mapper.Map<Product>(request);
             await _inventoryDbContext.Products.AddAsync(product);
             await _inventoryDbContext.SaveChangesAsync();
+            _logger.LogInformation($"Created product: {product.Id}");
             return await Result<Guid>.SuccessAsync(product.Id);
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Failed to create product: {ex.Message}");
             return await Result<Guid>.FailureAsync(ex.Message);
         }
     }
@@ -52,10 +57,12 @@ public class InventoryService : IInventoryService
             }
             product.Quantity = request.Quantity;
             await _inventoryDbContext.SaveChangesAsync();
+            _logger.LogInformation($"Updated product: {product.Id}");
             return await Result<None>.SuccessAsync();
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Failed to update product: {ex.Message}");
             return await Result<None>.FailureAsync(ex.Message);
         }
     }
@@ -70,7 +77,8 @@ public class InventoryService : IInventoryService
                 var itemResult = await ReserveItemAsync(item);
                 if (!itemResult.Succeeded)
                 {
-                    return await Result<long>.FailureAsync("Ошибка");
+                    _logger.LogError("Failed to reserve item");
+                    return await Result<long>.FailureAsync($"Ошибка {string.Join(',', itemResult.Errors)}");
                 }
                 totalPrice += item.Quantity;
             }
@@ -79,6 +87,7 @@ public class InventoryService : IInventoryService
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Failed to reserve items: {ex.Message}");
             return await Result<long>.FailureAsync(ex.Message);
         }
     }
@@ -94,6 +103,10 @@ public class InventoryService : IInventoryService
         if (product.Quantity >= request.Quantity)
         {
             product.Quantity -= request.Quantity;
+        }
+        else
+        {
+            return await Result<long>.FailureAsync("Quantity too low");
         }
         return await Result<long>.SuccessAsync();
     }

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OrderService.Application.Interfaces;
-using OrderService.Application.Orders.DTOs;
+using OrderService.Application.Services.DTOs;
 
 namespace OrderService.API;
 
@@ -29,6 +29,13 @@ public class OrdersController : Controller
        request.OrderId = idResult.Data;
        await _ordersPublisher.PublishOrderCreatedAsync(request, cancellationToken);
        return Accepted($"/order/{idResult.Data}", new { idResult.Data });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetOrders()
+    {
+        var result = await _orderService.GetOrders();
+        return result.Succeeded ? Ok(result.Data) : BadRequest(result.Errors);
     }
 }
     

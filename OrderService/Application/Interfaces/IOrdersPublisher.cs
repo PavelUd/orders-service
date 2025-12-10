@@ -1,4 +1,4 @@
-using OrderService.Application.Orders.DTOs;
+using OrderService.Application.Services.DTOs;
 
 namespace OrderService.Application.Interfaces;
 

@@ -2,11 +2,27 @@ using Contracts.Commands;
 using Rebus.Config;
 using Rebus.Routing.TypeBased;
 using SagaCoordinator;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+    .AddJsonFile("Serilog.json", optional: true, reloadOnChange: false)
+    .AddEnvironmentVariables();
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .WriteTo.Console(theme: SystemConsoleTheme.Literate)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 builder.Services.AddRebus(
     configure => configure
         .Transport(t => 

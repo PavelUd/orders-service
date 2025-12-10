@@ -1,20 +1,36 @@
 using System.Reflection;
+using System.Text.Json.Serialization;
 using Contracts.Events;
 using Microsoft.EntityFrameworkCore;
-using OrderService;
-using OrderService.Application;
 using OrderService.Application.Handlers;
 using OrderService.Application.Interfaces;
-using OrderService.Application.Orders;
 using OrderService.Application.Services;
 using OrderService.Infrastructure.Persistence;
-using Rebus.Bus;
+using Serilog;
 using Rebus.Config;
 using Rebus.Routing.TypeBased;
+using Serilog.Sinks.SystemConsole.Themes;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+    .AddJsonFile("Serilog.json", optional: true, reloadOnChange: false)
+    .AddEnvironmentVariables();
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .WriteTo.Console(theme: SystemConsoleTheme.Literate)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IOrdersPublisher, OrdersPublisher>();

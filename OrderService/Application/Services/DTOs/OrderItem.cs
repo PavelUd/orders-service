@@ -1,4 +1,4 @@
-namespace OrderService.Application.Orders.DTOs;
+namespace OrderService.Application.Services.DTOs;
 
 public class OrderItem
 {

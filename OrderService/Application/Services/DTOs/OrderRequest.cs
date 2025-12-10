@@ -1,9 +1,8 @@
 using System.Text.Json.Serialization;
 using AutoMapper;
-using AutoMapper.Configuration.Annotations;
 using OrderService.Domain.Entities;
 
-namespace OrderService.Application.Orders.DTOs;
+namespace OrderService.Application.Services.DTOs;
 
 public class OrderRequest
 {

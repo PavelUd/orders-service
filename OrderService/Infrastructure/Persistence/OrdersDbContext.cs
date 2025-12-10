@@ -3,7 +3,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using OrderService.Application.Interfaces;
-using OrderService.Application.Orders.DTOs;
+using OrderService.Application.Services.DTOs;
 using OrderService.Domain.Entities;
 
 namespace OrderService.Infrastructure.Persistence;
