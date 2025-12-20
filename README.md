@@ -24,7 +24,7 @@ InventoryService/
  └─ Migrations/
 
 PaymentService/
- ├─ API/
+ ├─ Controllers/
  ├─ Application/
  ├─ Domain/
  ├─ Infrastructure/
