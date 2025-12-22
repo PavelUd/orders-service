@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InventoryService.Migrations
 {
     [DbContext(typeof(InventoryDbContext))]
-    [Migration("20251217104550_SetProductPriceToDecimal")]
-    partial class SetProductPriceToDecimal
+    [Migration("20251222175149_addcolumnprice")]
+    partial class addcolumnprice
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
