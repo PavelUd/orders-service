@@ -7,8 +7,14 @@ public class PaymentDbContextFactory : IDesignTimeDbContextFactory<PaymentDbCont
 {
     public PaymentDbContext CreateDbContext(string[] args)
     {
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", false)
+            .Build();
+        var databaseConnectionString = configuration.GetConnectionString("PaymentDb");
+        if (string.IsNullOrWhiteSpace(databaseConnectionString))
+            throw new ArgumentException("Database connection string is not initialized");
         var optionsBuilder = new DbContextOptionsBuilder<PaymentDbContext>();
-        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=payment-db;Username=postgres;Password=root");
+        optionsBuilder.UseNpgsql(databaseConnectionString);
 
         return new PaymentDbContext(optionsBuilder.Options);
     }
