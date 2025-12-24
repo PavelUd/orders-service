@@ -34,3 +34,19 @@ SagaCoordinator/
  ├─ OrderSaga.cs           – логика саги
  └─ OrderSagaData.cs       – состояние саги
 ```
+
+## Environment
+
+RabbitUser=имя учётки в rabbitMq
+RabbitPwd=пароль от учётки в rabbitMq
+RabbitHost=rabbitmq
+RabbitPort=порт RabbitMq
+RabbitVhost= vhost в rabbitMq
+DbHost=postgres
+DbPort=порт бд
+SagaDbName=имя бд для saga coordinator-а
+PaymentDbName=название бд для сервиса оплаты
+InventoryDbName=название бд со всеми товарами
+OrderDbName=название бд с заказами
+DbUser=имя пользователя в бд
+DbPwd=пароль от бд
