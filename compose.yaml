@@ -70,8 +70,8 @@
     volumes:
       - pg_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: ${Uid:-}
-      POSTGRES_PASSWORD: ${Pwd:-}
+      POSTGRES_USER: ${DbUser:-}
+      POSTGRES_PASSWORD: ${DbPwd:-}
     networks:
      - orders-net
     ports:
@@ -92,7 +92,7 @@
     image: prometheuscommunity/postgres-exporter:latest
     container_name: postgres-exporter
     environment:
-      - DATA_SOURCE_NAME=postgresql://${Uid:-}:${Pwd:-}@postgres:5432/${SagaDbName:-}?sslmode=disable,postgresql://${Uid:-}:${Pwd:-}@postgres:5432/${PaymentDbName:-}?sslmode=disable,postgresql://${Uid:-}:${Pwd:-}@postgres:5432/${InventoryDbName:-}?sslmode=disable,postgresql://${Uid:-}:${Pwd:-}@postgres:5432/${OrderDbName:-}?sslmode=disable
+      - DATA_SOURCE_NAME=postgresql://${DbUser:-}:${DbPwd:-}@postgres:5432/${SagaDbName:-}?sslmode=disable,postgresql://${DbUser:-}:${DbPwd:-}@postgres:5432/${PaymentDbName:-}?sslmode=disable,postgresql://${DbUser:-}:${DbPwd:-}@postgres:5432/${InventoryDbName:-}?sslmode=disable,postgresql://${DbUser:-}:${DbPwd:-}@postgres:5432/${OrderDbName:-}?sslmode=disable
     ports:
       - "9187:9187"
     networks:
@@ -124,7 +124,7 @@
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=qwe123
+      - GF_SECURITY_ADMIN_PASSWORD=${GrafanaPwd:-}
       - GF_USERS_ALLOW_SIGN_UP=false
     networks:
      - orders-net
