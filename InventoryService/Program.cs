@@ -6,6 +6,7 @@ using InventoryService.Application.Interfaces;
 using InventoryService.Infrastructure.Outbox;
 using InventoryService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Prometheus;
 using Rebus.Config;
 using Rebus.Routing.TypeBased;
 using Serilog;
@@ -61,6 +62,8 @@ if (app.Environment.IsDevelopment())
 }
 app.MapControllers();
 app.UseRouting();
+app.MapMetrics();
+app.UseHttpMetrics();
 
 app.UseHttpsRedirection();
 app.Run();

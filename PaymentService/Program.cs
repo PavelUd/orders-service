@@ -2,6 +2,7 @@ using PaymentService;
 using PaymentService.Application;
 using PaymentService.Infrastructure;
 using PaymentService.Infrastructure.Outbox;
+using Prometheus;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
@@ -40,6 +41,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapMetrics();
+app.UseHttpMetrics();
 
 app.Run();
 

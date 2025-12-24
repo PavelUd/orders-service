@@ -1,4 +1,5 @@
 using Contracts.Commands;
+using Prometheus;
 using Rebus.Config;
 using Rebus.Routing.TypeBased;
 using SagaCoordinator;
@@ -59,6 +60,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.MapMetrics();
+app.UseHttpMetrics();
 app.UseHttpsRedirection();
 app.Run();

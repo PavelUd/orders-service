@@ -1,15 +1,16 @@
-using System.Reflection;
-using System.Text.Json.Serialization;
 using Contracts.Events;
 using Microsoft.EntityFrameworkCore;
 using OrderService.Application.Handlers;
 using OrderService.Application.Interfaces;
 using OrderService.Application.Services;
 using OrderService.Infrastructure.Persistence;
-using Serilog;
+using Prometheus;
 using Rebus.Config;
 using Rebus.Routing.TypeBased;
+using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
+using System.Reflection;
+using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,7 +65,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
-app.UseRouting();
+app.UseRouting(); 
+app.MapMetrics();
+app.UseHttpMetrics();
 app.UseHttpsRedirection();
 app.Run();
 
