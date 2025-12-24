@@ -1,6 +1,141 @@
 ﻿services:
   orderservice:
     image: orderservice
+    container_name: orderservice
+    depends_on:
+      - sagacoordinator
+    environment:
+      ConnectionStrings__OrderDb: Host=${DbHost:-};Port=${DbPort:-};Database=${OrderDbName:-};Username=${DbUser:-};Password=${DbPwd:-};
+      Rabbit__ConnectionString: amqp://${RabbitUser:-}:${RabbitPwd:-}@${RabbitHost:-}:${RabbitPort:-}/${RabbitVhost:-}
     build:
       context: .
       dockerfile: OrderService/Dockerfile
+    networks:
+     - orders-net
+    ports:
+     - "10003:8080"
+
+  inventoryservice:
+    image: inventoryservice
+    container_name: inventoryservice
+    depends_on:
+      - sagacoordinator
+    environment:
+      ConnectionStrings__InventoryDb: Host=${DbHost:-};Port=${DbPort:-};Database=${InventoryDbName:-};Username=${DbUser:-};Password=${DbPwd:-};
+      Rabbit__ConnectionString: amqp://${RabbitUser:-}:${RabbitPwd:-}@${RabbitHost:-}:${RabbitPort:-}/${RabbitVhost:-}
+    build:
+      context: .
+      dockerfile: InventoryService/Dockerfile
+    networks:
+     - orders-net
+    ports:
+     - "10002:8080"
+
+  paymentservice:
+    image: paymentservice
+    container_name: paymentservice
+    depends_on:
+      - sagacoordinator
+    build:
+      context: .
+      dockerfile: PaymentService/Dockerfile
+    environment:
+      ConnectionStrings__PaymentDb: Host=${DbHost:-};Port=${DbPort:-};Database=${PaymentDbName:-};Username=${DbUser:-};Password=${DbPwd:-};
+      Rabbit__ConnectionString: amqp://${RabbitUser:-}:${RabbitPwd:-}@${RabbitHost:-}:${RabbitPort:-}/${RabbitVhost:-}
+    networks:
+     - orders-net
+    ports:
+     - "10001:8080"
+
+  sagacoordinator:
+    image: sagacoordinator
+    container_name: sagacoordinator
+    depends_on:
+      - rabbitmq
+      - postgres
+    environment:
+      ConnectionStrings__RebusSql: Host=${DbHost:-};Port=${DbPort:-};Database=${SagaDbName:-};Username=${DbUser:-};Password=${DbPwd:-};
+      Rabbit__ConnectionString: amqp://${RabbitUser:-}:${RabbitPwd:-}@${RabbitHost:-}:${RabbitPort:-}/${RabbitVhost:-}
+    networks:
+     - orders-net
+    ports:
+     - "10000:8080" 
+    build:
+      context: .
+      dockerfile: SagaCoordinator/Dockerfile
+
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${Uid:-}
+      POSTGRES_PASSWORD: ${Pwd:-}
+    networks:
+     - orders-net
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    volumes:
+     - rabbit_data:/var/lib/rabbitmq
+    networks:
+     - orders-net
+    ports:
+     - "${RabbitPort:-}:${RabbitPort:-}"
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter
+    environment:
+      - DATA_SOURCE_NAME=postgresql://${Uid:-}:${Pwd:-}@postgres:5432/${SagaDbName:-}?sslmode=disable,postgresql://${Uid:-}:${Pwd:-}@postgres:5432/${PaymentDbName:-}?sslmode=disable,postgresql://${Uid:-}:${Pwd:-}@postgres:5432/${InventoryDbName:-}?sslmode=disable,postgresql://${Uid:-}:${Pwd:-}@postgres:5432/${OrderDbName:-}?sslmode=disable
+    ports:
+      - "9187:9187"
+    networks:
+      - orders-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./Monitoring/prometheus_conf.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - orders-net
+    depends_on:
+      - paymentservice 
+      - orderservice 
+      - inventoryservice
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    volumes:
+     - grafana_data:/var/lib/grafana
+     - ./Monitoring/grafana_datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+     - ./Monitoring/grafana_dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+     - ./Monitoring/dashboard.json:/etc/grafana/dashboards/dashboard.json
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=qwe123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    networks:
+     - orders-net
+
+
+networks:
+  orders-net:
+
+volumes:
+  pg_data:
+  rabbit_data:
+  prometheus_data:
+  grafana_data:
+    
