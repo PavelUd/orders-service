@@ -62,3 +62,5 @@ OrderDbName=название бд с заказами
 DbUser=имя пользователя в бд
 
 DbPwd=пароль от бд
+
+GrafanaPwd=пароль от Grafana
